@@ -18,6 +18,8 @@ const showImages = (images) => {
   imagesArea.style.display = 'block';
   gallery.innerHTML = '';
   // show gallery title
+  toggleSpinner();
+  
   galleryHeader.style.display = 'flex';
   images.forEach(image => {
     let div = document.createElement('div');
@@ -34,19 +36,19 @@ const getImages = (query) => {
   fetch(`https://pixabay.com/api/?key=${KEY}=${query}&image_type=photo&pretty=true`)
     .then(response => response.json())
     .then(data => showImages(data.hits))
-    .catch(error => displayError('Something wrong!! Please Try Again.'));
+    .catch(error => displayError("Something wrong!! Please Try Again."), 2000);
 }
 
 let slideIndex = 0;
 const selectItem = (event, img) => {
   let element = event.target;
-  element.classList.add('added');
+  element.classList.toggle('added');
  
   let item = sliders.indexOf(img);
   if (item === -1) {
     sliders.push(img);
   } else {
-    element.classList.remove('added');
+    sliders.pop(img);
   }
 }
 var timer
@@ -69,7 +71,7 @@ const createSlider = () => {
   document.querySelector('.main').style.display = 'block';
   // hide image aria
   imagesArea.style.display = 'none';
-  const duration = document.getElementById('duration').value || 1000;
+  let duration = document.getElementById('duration').value || 1000;
   sliders.forEach(slide => {
     let item = document.createElement('div')
     item.className = "slider-item";
@@ -129,21 +131,25 @@ var searchField = document.getElementById("search")
 });
 
 sliderBtn.addEventListener('click', function () {
-  createSlider()
-})
+  const duration = document.getElementById('duration').value || 1000;
+  if (duration < 0) {
+      alert('Negative time is not allowed ');
+  } else {
+      createSlider();
+  }
+});
 
 // Spinner 
-const toggleSpinner = (show) => {
-  const spinner = document.getElementById('loading-spinner');
-  if(show){
-    spinner.classList.remove('d-none');
-  }else {
-    spinner.classList.add('d-none');
-  }
+const toggleSpinner = () => {
+  const spinner = document.getElementById('loading-spinner').classList;
+  const imageArea= document.querySelector('.images').classList;
+  spinner.toggle('d-none');
+  imageArea.toggle('d-none');
+
 }
 
 // Error Message 
 const displayError = error => {
-  const errorMessage = document.getElementById('errorMessage');
+  const errorMessage = document.getElementById('error-message');
   errorMessage.innerText = error;
 }
